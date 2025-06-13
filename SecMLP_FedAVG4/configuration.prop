@@ -1,0 +1,135 @@
+##############################################
+#        Model Configuration Parameters      #
+##############################################
+
+# Class of the model to be used
+# Options:
+# - f21bc.labs.NN.MLP:                Custom multi-layer perceptron
+# - f21bc.labs.NN.dl4j.model.dl4jMLP: DL4J-based MLP
+# - f21bc.labs.NN.dl4j.model.dl4jCNN: DL4J-based CNN (used here)
+model.class = f21bc.labs.NN.dl4j.model.dl4jCNN
+
+# Number of output classes for classification tasks
+model.classes = 43
+
+
+##############################################
+#              Dataset Selection             #
+##############################################
+
+# The logical name of the dataset (used to select or label data files in code)
+# Actual files must be placed in the 'data/HFL/' folder
+# e.g., for ijCNN, expected files are like 'ijCNN1.csv', 'ijCNN2.csv', etc.
+# 
+#data.file=Spam
+#data.file=IoT23
+#data.file=Cardio
+#data.file=wines
+
+data.file = ijCNN
+
+
+##############################################
+#       Hash Encoding (Optional Privacy)     #
+##############################################
+
+# Enable or disable hash-based weight encoding
+# If true, uses HCEncoder/HCDecoder and EncodedNodeThread
+encoding.hash = false
+
+# Serialized file to store or load hash encoding metadata
+encoding.file = hashmap.ser
+
+# Number of encoding channels (only used if encoding.hash = true)
+encoding.channels = 8
+
+# Minimum value for hash encoding range
+encoding.min = -0.35
+
+# Maximum value for hash encoding range
+encoding.max = +0.35
+
+# If true, randomly assigns encoding channels per client (rarely used)
+encoding.random.clients = false
+
+
+##############################################
+#       Gradient Noise and Clipping          #
+##############################################
+
+# Type of noise to apply to gradients (if any)
+# Examples: gaussian, laplace (commented out here, so no noise will be used)
+#noise.generator = gaussian
+
+# Gradient clipping threshold to prevent exploding gradients
+gradient.clipping = 1.0
+
+
+##############################################
+#        Federated Learning Parameters       #
+##############################################
+
+# Number of participating nodes (clients)
+# Only used in ClientManager2 for synthetic data splitting
+mlp.nodes = 4
+
+# Number of local training epochs per client, per round
+mlp.epochs = 100
+
+# Number of federated learning communication rounds
+mlp.iterations = 10
+
+# Learning rate used in training
+#learning.rate = 0.0005
+learning.rate = 0.0001
+#learning.rate = 5.0e-06
+
+
+##############################################
+#            Data Loading Options            #
+##############################################
+
+# Fraction of the dataset to use in training (from 0 to 1)
+# If not set or invalid, the entire dataset will be used
+mlp.batch = 0.2
+
+
+##############################################
+#           Neural Network Structure         #
+##############################################
+
+# NN layer configuration (not only used if model.class is an MLP)
+mlp.layers = 50,50,25,50,50
+#mlp.layers = 50,25,20,25,50
+#mlp.layers = 25,20,25
+
+# Activation function to use in the neural network
+# Options: sigmoid, tanh, relu
+mlp.af = sigmoid
+#mlp.af = tanh
+
+# Set to true if running on Windows (affects file path handling)
+mlp.windows = false
+
+
+##############################################
+#              Aggregation Server            #
+##############################################
+
+# IP address of the global model server (aggregator)
+global.server.ip = localhost
+
+# Port on which the global model server listens
+global.server.port = 4444
+
+
+##############################################
+#         Weight Initialization Control      #
+##############################################
+
+# If true, include bias terms in neural network layers
+mlp.bias = true
+
+# Optional: Path to file with pre-initialized model weights
+# Leave empty to initialize weights randomly
+mlp.init.file =
