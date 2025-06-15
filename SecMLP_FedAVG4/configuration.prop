@@ -4,10 +4,10 @@
 
 # Class of the model to be used
 # Options:
-# - f21bc.labs.NN.MLP:                Custom multi-layer perceptron
-# - f21bc.labs.NN.dl4j.model.dl4jMLP: DL4J-based MLP
-# - f21bc.labs.NN.dl4j.model.dl4jCNN: DL4J-based CNN (used here)
-model.class = f21bc.labs.NN.dl4j.model.dl4jCNN
+# - ebtic.labs.NN.MLP:                Custom multi-layer perceptron
+# - ebtic.labs.NN.dl4j.model.dl4jMLP: DL4J-based MLP
+# - ebtic.labs.NN.dl4j.model.dl4jCNN: DL4J-based CNN (used here)
+model.class = ebtic.labs.NN.dl4j.model.dl4jCNN
 
 # Number of output classes for classification tasks
 model.classes = 43

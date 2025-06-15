@@ -1,0 +1,269 @@
+package ebtic.labs.NN.dl4j.model;
+
+import java.io.File;
+
+
+
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
+import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
+import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
+import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.ActivationLayer;
+import org.deeplearning4j.nn.conf.layers.BatchNormalization;
+import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
+import org.deeplearning4j.nn.conf.layers.DropoutLayer;
+import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.conf.layers.PoolingType;
+import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+
+// useful links
+//https://chat.chatbotapp.ai/chats/-O7NvdkPhLOiy2LFzJfb?model=gpt-3.5
+//https://deeplearning4j.konduit.ai/deeplearning4j/reference/multi-layer-network
+//https://chatgpt.com/share/66f1000b-37a8-800b-bc48-9ebfaae355eb
+//https://github.com/deeplearning4j/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/feedforward/classification/IrisClassifier.java
+
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.buffer.DataType;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
+
+import com.google.common.primitives.Doubles;
+
+import ebtic.labs.AF.ActivationFunction;
+import ebtic.labs.AF.SoftMAX;
+import ebtic.labs.AF.ActivationFunction.Types;
+import ebtic.labs.Exceptions.ConfigurationException;
+import ebtic.labs.Exceptions.MatrixException;
+import ebtic.labs.Federated.threads.FinalModel;
+import ebtic.labs.LF.LossFunction;
+import ebtic.labs.NN.EarlyStopping;
+import ebtic.labs.NN.Layer;
+import ebtic.labs.NN.NN;
+import ebtic.labs.NN.dl4j.utils.Utils;
+import ebtic.labs.metrics.Accuracy;
+import ebtic.labs.metrics.History;
+import ebtic.labs.utils.Matrix;
+import ebtic.labs.utils.WeightsExtractor;
+
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.util.ModelSerializer;
+
+
+public class dl4jCNN extends ebtic.labs.NN.dl4j.abs.MLN{
+
+
+	static int inputHeight = 64; // Height of the image
+    static int inputWidth = 64;  // Width of the image
+    static int inputChannels = 3; // Number of channels (RGB)
+	
+	
+		public dl4jCNN(int epochs, double learning_rate, int[] layers, ActivationFunction.Types activation_function, LossFunction.Types loss_function, EarlyStopping ea, int classes, double clipping) throws ConfigurationException 
+		{
+			super(epochs, learning_rate, layers, activation_function,  loss_function,  ea, classes, clipping);
+		}
+		
+
+		public dl4jCNN(int[] layers, ActivationFunction.Types af, int classes, int features, double clipping) throws ConfigurationException
+		{
+			super(layers, af, classes, features, clipping);
+		}
+	
+
+		public MultiLayerConfiguration configureNetwork(int numLayers, int inputSize, int outputSize, int[] hiddenLayerSizes, double learning_rate, double grad) {
+	        
+	  
+			
+	        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+	                .updater(new Adam.Builder().learningRate(learning_rate).build()) // Optimizer
+	                .gradientNormalizationThreshold(grad) // Clip gradients above 1.0
+	                .weightInit(WeightInit.XAVIER) // Weight Initialization
+	                .l2(1e-4) // L2 Regularization
+	                .list()
+	                // First Convolutional Layer
+	                .layer(0, new ConvolutionLayer.Builder(3, 3) // Filter size 3x3
+	                        .nIn(3) // Input channels (RGB)
+	                        .nOut(32) // Number of filters
+	                        .stride(1, 1) // Stride 1x1
+	                        .activation(Activation.RELU) // Activation function
+	                        .build())
+	                // First Max Pooling Layer
+	                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX) // Max pooling
+	                        .kernelSize(2, 2) // Pooling size 2x2
+	                        .stride(2, 2) // Stride 2x2
+	                        .build())
+	                // Second Convolutional Layer
+	                .layer(2, new ConvolutionLayer.Builder(3, 3) // Filter size 3x3
+	                        .nOut(64) // Number of filters
+	                        .stride(1, 1)
+	                        .activation(Activation.RELU)
+	                        .build())
+	                // Second Max Pooling Layer
+	                .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+	                        .kernelSize(2, 2)
+	                        .stride(2, 2)
+	                        .build())
+	                // Third Convolutional Layer
+	                .layer(4, new ConvolutionLayer.Builder(3, 3) // Filter size 3x3
+	                        .nOut(64) // Number of filters
+	                        .stride(1, 1)
+	                        .activation(Activation.RELU)
+	                        .build())
+	                // Third Max Pooling Layer
+	                .layer(5, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+	                        .kernelSize(2, 2)
+	                        .stride(2, 2)
+	                        .build())
+	                // Fully Connected Layer
+	                .layer(6, new DenseLayer.Builder()
+	                        .nOut(64) // Number of neurons
+	                        .activation(Activation.RELU)
+	                        .build())
+	                // Dropout Layer to prevent overfitting
+	                .layer(7, new DropoutLayer(0.35))
+	                // Output Layer
+	                .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD) // Output layer
+	                        .nOut(outputSize) // Number of output classes (e.g., 43)
+	                        .activation(Activation.SOFTMAX)
+	                        .build())
+	                // Set Input Type to convolutional (height, width, depth)
+	                .setInputType(InputType.convolutional(64, 64, 3))
+	                .build();
+
+			
+			
+
+
+
+
+//	        @SuppressWarnings("deprecation")
+//			MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+//	        		.updater(new Adam.Builder().learningRate(learning_rate).build())
+////	        		.dist(new UniformDistribution(-0.045, 0.045)) // Specify the range: weights will be initialized between -0.1 and 0.1
+//	                .list()
+//	                .layer(0, new ConvolutionLayer.Builder(5, 5) // Convolutional layer
+//	                        .nIn(inputChannels) // Number of input channels
+//	                        .nOut(32) // Number of filters
+//	                        .activation(Activation.RELU) // Activation function
+//	                        .build())
+//	                .layer(1, new SubsamplingLayer.Builder(PoolingType.MAX) // Max pooling layer
+//	                        .kernelSize(2, 2) // Pooling size
+//	                        .stride(2, 2) // Stride
+//	                        .build())
+//	                .layer(2, new ConvolutionLayer.Builder(5, 5) // Second convolutional layer
+//	                        .nOut(64) // Number of filters
+//	                        .activation(Activation.RELU)
+//	                        .build())
+//	                .layer(3, new SubsamplingLayer.Builder(PoolingType.MAX) // Second max pooling layer
+//	                        .kernelSize(2, 2)
+//	                        .stride(2, 2)
+//	                        .build())
+//	                .layer(4, new DenseLayer.Builder() // Fully connected layer
+//	                        .nOut(128) // Number of neurons
+//	                        .activation(Activation.RELU)
+//	                        .build())
+//	                .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD) // Output layer
+//	                        .nOut(outputSize) // Number of output classes
+//	                        .activation(Activation.SOFTMAX)
+//	                        .build())
+//	                .setInputType(InputType.convolutional(inputHeight, inputWidth, inputChannels)) // Specify input type
+//	                .build();
+
+	        return conf;
+	    }
+
+
+		@Override
+		public DataSet reshapeDataSet(DataSet dataset) {
+
+
+			  // Reshape the test data from [numSamples, 12288] to [numSamples, 3, 64, 64]
+		       INDArray trainingFeatures = dataset.getFeatures();
+		       trainingFeatures = trainingFeatures.reshape(trainingFeatures.size(0), inputChannels, inputHeight, inputWidth);
+		       dataset.setFeatures(trainingFeatures);
+		       
+		       return dataset;
+			
+		}
+
+
+		
+		protected ArrayList<Layer> updateTransferWeights()
+		{
+			
+			org.deeplearning4j.nn.api.Layer[] modelLayers = model.getLayers();
+			try 
+			{
+					
+				this.Layers = Utils.transferCNNWeights(modelLayers);
+					
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return this.Layers;
+		}
+
+		
+		protected org.deeplearning4j.nn.api.Layer[] updateModelWeights()
+		{
+			org.deeplearning4j.nn.api.Layer[] modelLayers = model.getLayers();
+			try {
+				modelLayers = Utils.transferCNNWeights(this.Layers, modelLayers);
+//				this.printLayersSize();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+			model.setLayers(modelLayers);
+			model.getUpdater().getStateViewArray().assign(0);
+			return modelLayers;
+		}
+
+
+		@Override
+		public ArrayList<Layer> initializeLayers(int input, int classes) {
+			// TODO Auto-generated method stub
+			return this.updateTransferWeights();
+		}
+
+		
+		@Override
+		public double[][] predict(double[][] X_test) throws MatrixException {
+			// TODO Auto-generated method stub
+			
+//			this.Layers = this.instanciate(Matrix.getShape(X)[1]);
+			
+			Utils.printLayersShape(model.getLayers());
+//			X_test = Matrix.transpose(X_test);
+			
+			INDArray trainingFeatures = Nd4j.create(X_test);
+			
+		    trainingFeatures = trainingFeatures.reshape(trainingFeatures.size(0), inputChannels, inputHeight, inputWidth);
+			INDArray output = model.output(trainingFeatures);
+			float[][] straight = output.toFloatMatrix();
+			double[][] A = Utils.convertFloatToDouble(straight);
+			return A;
+		}
+
+		
+		
+}
