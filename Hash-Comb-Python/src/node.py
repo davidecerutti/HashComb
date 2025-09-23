@@ -39,6 +39,12 @@ class Node:
     def getChannel(self) -> int:
         return self.channel
     
+    def getMin(self) -> float:
+        return self.min
+
+    def getMax(self) -> float:
+        return self.max
+    
     def toString(self) -> str:
         return f"Min: {self.min}    Max: {self.max}"
     
