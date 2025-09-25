@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Optional, List, Any, Union, Dict
+from typing import Optional, List, Any, Union, Dict, Sequence
+import numpy as np
 
 from src.node import Node
 from src.tree import Tree
@@ -25,3 +26,10 @@ class Encoder :
         if Encoder.channels < 1 or Encoder.channels > len(hashStrings):
             raise ValueError(f"path length {len(hashStrings)} mismatched channels {Encoder.channels}")
         return hashStrings[Encoder.channels - 1]
+    
+    def encodeArray(self, values: Union[Sequence[float], np.ndarray]) -> np.ndarray:
+        values = np.asarray(values, dtype=np.float64).reshape(-1)
+        hashesStrings = np.empty(values.shape[0], dtype=object)
+        for index, value in enumerate(values):
+            hashesStrings[index] = self.encode(float(value))
+        return hashesStrings

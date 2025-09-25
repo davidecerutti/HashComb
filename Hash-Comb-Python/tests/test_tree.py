@@ -17,7 +17,7 @@ def test_build_and_traverse_non_hash():
         count = t.traverseLevelOrder(False)
     out = buf.getvalue()
     assert count > 0
-    assert "[" in out and "]" in out, f"output inatteso: {out!r}"
+    assert "[" in out and "]" in out, f"output error: {out!r}"
 
 
 def test_get_hvalues_in_range():
@@ -30,6 +30,6 @@ def test_out_of_range_exits():
     t = Tree(4, 15.5, 0)
     try:
         t.getHValues(99.0, True)
-        assert False, "Doveva lanciare SystemExit"
+        assert False, "SystemExit ???????"
     except SystemExit as e:
         assert e.code == -1

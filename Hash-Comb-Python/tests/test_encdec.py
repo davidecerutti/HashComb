@@ -2,6 +2,7 @@
 import os
 import random
 import math
+import numpy as np
 import pytest
 
 from src.encoder import Encoder
@@ -26,7 +27,7 @@ def test_encode_decode_coherence(tmp_path, monkeypatch):
     decoded = dec.decode(h)
     leaf_width = (enc.max - enc.min) / (2 ** enc.channels)
     assert abs(decoded - value) <= leaf_width / 2, (
-        f"Decoded {decoded} troppo lontano da {value}, leaf_width={leaf_width}"
+        f"Decoded {decoded} to much difference from {value}, leaf_width={leaf_width}"
     )
 
 
@@ -56,3 +57,34 @@ def test_encode_decode_many_values(tmp_path, monkeypatch, channels, value):
     decoded = dec.decode(h)
     leaf_width = (enc.max - enc.min) / (2 ** enc.channels)
     assert abs(decoded - value) <= leaf_width / 2 + 1e-12
+
+
+
+
+def test_encode_decode_array(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    
+    channels, vmin, vmax = 8, 0.0, 15.5
+    enc = Encoder(channels, vmax, vmin)
+    dec = Decoder()
+
+    x = np.linspace(vmin, vmax, 257, dtype=np.float64) 
+    tok = enc.encodeArray(x)
+    y = dec.decodeArray(tok)
+
+    assert isinstance(tok, np.ndarray) and tok.ndim == 1
+    assert isinstance(y, np.ndarray) and y.ndim == 1 and y.dtype == np.float64
+    assert y.shape == x.shape
+    assert all(isinstance(t, (str, np.str_)) and t.isdigit() for t in tok)
+
+    leaf_width = (enc.max - enc.min) / (2 ** enc.channels)
+    assert y.min() >= vmin - 1e-12
+    assert y.max() <= vmax + 1e-12
+    assert np.all(np.abs(y - x) <= (leaf_width / 2 + 1e-12))
+
+    x_list = x[:10].tolist()
+    tok_list = enc.encodeArray(x_list)
+    y_list = dec.decodeArray(tok_list)
+    assert np.allclose(y_list, dec.decodeArray(tok_list))
+    y_scalar = np.array([dec.decode(t) for t in tok_list], dtype=np.float64)
+    assert np.allclose(y_list, y_scalar)
