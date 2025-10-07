@@ -1,0 +1,28 @@
+python -m src.cli encode 
+			--channels <layers> 
+			--min <minValue> 
+			--max <maxValue>  
+			--config configurationDemo.pkl 
+			--value <inputValue>
+
+
+python -m src.cli decode 
+			--config configurationDemo.pkl 
+			--hash <hashedValue>
+
+
+
+python -m FedAvgSandBox.main 
+			--clients <fedClients> 
+			--rounds <roundNumber> 
+			--seed <randomSeed>
+
+
+python -m FedAvgSandBox.main 
+			--clients <defClients> 
+			--rounds <roundNumber> 
+			--seed <randomSeed> 
+			--encoded 
+			--channels <treeLayer> 
+			--vmin <minPlaintext> 
+			--vmax <maxPlaintext>

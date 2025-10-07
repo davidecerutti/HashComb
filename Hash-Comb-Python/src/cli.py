@@ -1,4 +1,6 @@
-# src/cli.py
+#   python -m src.cli encode --channels 8 --min 0 --max 15.5 --config configurationDemo.pkl --value 12.34
+#   python -m src.cli decode --config configurationDemo.pkl --hash 190681195 
+
 import argparse
 import sys
 from src.encoder import Encoder
@@ -55,3 +57,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+#i think that a wrapper for encodeArray and decodeArray is useless...
