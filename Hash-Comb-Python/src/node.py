@@ -1,12 +1,18 @@
 from __future__ import annotations
 from typing import Optional, List, Any, Union
 
-def _java_string_hashcode(s: str) -> int:
-    # Replica di Java String.hashCode() in Python.
-    h = 0
-    for ch in s:
-        h = (31 * h + ord(ch)) & 0xFFFFFFFF 
-    return h 
+# def _java_string_hashcode(s: str) -> int:
+#     # Replica di Java String.hashCode() in Python.
+#     h = 0
+#     for ch in s:
+#         h = (31 * h + ord(ch)) & 0xFFFFFFFF 
+#     return h 
+
+#directly from documentation hashlib
+import hashlib
+def sha3_256_int64(s: str) -> int:
+    d = hashlib.sha3_256(s.encode('utf-8')).digest()
+    return int.from_bytes(d[:8], 'big', signed=False)
 
 
 class Node:
@@ -86,7 +92,7 @@ class Node:
             isHashed: bool = args[0]
             out = f"{self.channel}[{self.min}  {self.max}]"
             if isHashed:
-                return str(_java_string_hashcode(out) & 0x0FFFFFFF)
+                return str(sha3_256_int64(out) & 0x0FFFFFFF)
             return out
 
         if len(args) == 2 and isinstance(args[0], (int, float)) and isinstance(args[1], bool):

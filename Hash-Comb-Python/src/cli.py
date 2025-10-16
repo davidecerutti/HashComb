@@ -1,5 +1,5 @@
 #   python -m src.cli encode --channels 8 --min 0 --max 15.5 --config configurationDemo.pkl --value 12.34
-#   python -m src.cli decode --config configurationDemo.pkl --hash 190681195 
+#   python -m src.cli decode --config configurationDemo.pkl --hash 88785447 
 
 import argparse
 import sys
