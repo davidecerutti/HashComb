@@ -1,51 +1,40 @@
-#   python -m src.cli encode --channels 8 --min 0 --max 15.5 --config configurationDemo.pkl --value 12.34
-#   python -m src.cli decode --config configurationDemo.pkl --hash 88785447 
+#
+# CLI wrapper usage:
+# python -m src.cli encode --channels <int> --min <float> --max <float> [--config <file.pkl>] --value <float>
+# python -m src.cli decode [--config <file.pkl>] --hash <str>
+#
+# python -m src.cli decode [--config <file.pkl>] --hash $(& python -m src.cli encode --channels <int> --min <float> --max <float> [--config <file.pkl>] --value <float> 2>&1 | Select-Object -First 1).ToString().Trim()
 
 import argparse
 import sys
 from src.encoder import Encoder
 from src.decoder import Decoder
 
-def cmd_train(a: argparse.Namespace) -> int:
-    Encoder(a.channels, a.max, a.min, configPath=a.config)
-    print(f"Model saved: {a.config}")
-    return 0
-
 def cmd_encode(a: argparse.Namespace) -> int:
     enc = Encoder(a.channels, a.max, a.min, configPath=a.config)
-    print(enc.encode(a.value))
-    return 0
+    return(enc.encode(a.value))
 
 def cmd_decode(a: argparse.Namespace) -> int:
     dec = Decoder(configPath=a.config)
-    print(dec.decode(a.hash))
-    return 0
+    return(dec.decode(a.hash))
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="hashcomb", description="HashComb CLI (minimal)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    # train
-    t = sub.add_parser("train", help="Crea un nuovo modello (.pkl)")
-    t.add_argument("--channels", type=int, required=True)
-    t.add_argument("--min", type=float, required=True)
-    t.add_argument("--max", type=float, required=True)
-    t.add_argument("--config", type=str, default="configuration.pkl")
-    t.set_defaults(func=cmd_train)
-
     # encode
-    e = sub.add_parser("encode", help="Encoda un valore")
-    e.add_argument("--channels", type=int, required=True)
-    e.add_argument("--min", type=float, required=True)
-    e.add_argument("--max", type=float, required=True)
-    e.add_argument("--config", type=str, default="configuration.pkl")
-    e.add_argument("--value", type=float, required=True)
+    e = sub.add_parser("encode", help="Encode a plaintext value")
+    e.add_argument("--channels", type=int, required=True, help="Number of channels of the tree")
+    e.add_argument("--min", type=float, required=True, help="Minimum value to encode")
+    e.add_argument("--max", type=float, required=True, help="Maximum value to encode")
+    e.add_argument("--config", type=str, default="configuration.pkl", help="Path to save the configuration file")
+    e.add_argument("--value", type=float, required=True, help="Plaintext value to encode")
     e.set_defaults(func=cmd_encode)
 
     # decode
-    d = sub.add_parser("decode", help="Decoda un hash")
-    d.add_argument("--config", type=str, default="configuration.pkl")
-    d.add_argument("--hash", type=str, required=True)
+    d = sub.add_parser("decode", help="Decode a ciphertext value")
+    d.add_argument("--config", type=str, default="configuration.pkl", help="Path to load the configuration file")
+    d.add_argument("--hash", type=str, required=True, help="Ciphertext value to decode")
     d.set_defaults(func=cmd_decode)
 
     return p
