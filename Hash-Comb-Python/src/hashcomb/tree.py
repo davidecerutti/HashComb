@@ -1,8 +1,12 @@
 from __future__ import annotations
 from decimal import ROUND_HALF_UP, Decimal
+import logging
 from typing import Optional, List, Any, Union
 
-from src.node import Node
+from .node import Node
+from .exceptions import OutOfRangeError
+
+logger = logging.getLogger(__name__)
 
 class Tree:
     channels : int
@@ -13,7 +17,6 @@ class Tree:
     isRounded : bool = False
 
 
-    #doppio costruttore Tree(int channels, double max, double min) or Tree(int channels, double max, double min, int rounds)
     def __init__(self, channels: int, maxValue: float, minValue: float, rounds: Optional[int] = None) -> None:
         self.channels = int(channels)
         self.isRounded = False
@@ -40,9 +43,9 @@ class Tree:
         return float(d)
     
     def insert(self, node: Node) -> None:
-        currentChannel = node.getChannel()
+        currentChannel = node.channel
         if currentChannel != self.channels :
-            center = node.getCenter()
+            center = node.getCenter
             if self.isRounded:
                 center = Tree.round(center, self.places)
             leftChild = Node(node.min, center, (currentChannel + 1))
@@ -60,26 +63,13 @@ class Tree:
         if node is not None:
             count = count + 1
             a = self.traverseInOrder(node.left, isHashed, 0)
-            print(" " + node.getValue(isHashed))
+            logger.debug(" " + node.getValue(isHashed))
             b = self.traverseInOrder(node.right, isHashed, 0)
             count = count + a + b
         return count
     
     def getHValues(self, num: float, isHashed: bool) -> list[str]:
         if (num < self.min) or (num > self.max):
-            print(f"Weight {num} is Exceeding Limits --> ({self.min}, {self.max} )")
-            raise SystemExit(-1)
+            raise OutOfRangeError(num, self.min, self.max)
         out = self.root.getValue(num, isHashed)
         return out or []
-    
-    def getMin(self) -> float:
-        return self.min 
-    
-    def getMax(self) -> float:
-        return self.max
-    
-    def getRoot(self) -> Node:
-        return self.root
-    
-    def getChannels(self) -> int:
-        return self.channels

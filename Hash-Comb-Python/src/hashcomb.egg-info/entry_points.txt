@@ -1,0 +1,2 @@
+[console_scripts]
+hashcomb = hashcomb.cli:main

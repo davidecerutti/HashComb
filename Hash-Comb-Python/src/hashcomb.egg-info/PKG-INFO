@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: hashcomb
+Version: 0.1.1
+Summary: A quantization-based technique for privacy preserving distributed learning
+Author: Davide Cerutti, Ernesto Damiani, Maurizio Colombo, Stelvio Cimato
+License: MIT
+Project-URL: Homepage, https://github.com/mauricolombo/milanHashCombFL
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26

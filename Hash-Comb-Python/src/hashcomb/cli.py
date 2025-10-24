@@ -1,22 +1,24 @@
 #
 # CLI wrapper usage:
-# python -m src.cli encode --channels <int> --min <float> --max <float> [--config <file.pkl>] --value <float>
-# python -m src.cli decode [--config <file.pkl>] --hash <str>
+# python -m hashcomb.cli encode --channels <int> --min <float> --max <float> [--config <file.pkl>] --value <float>
+# python -m hashcomb.cli decode [--config <file.pkl>] --hash <str>
 #
-# python -m src.cli decode [--config <file.pkl>] --hash $(& python -m src.cli encode --channels <int> --min <float> --max <float> [--config <file.pkl>] --value <float> 2>&1 | Select-Object -First 1).ToString().Trim()
+# python -m hashcomb.cli decode [--config <file.pkl>] --hash $(& python -m hashcomb.cli encode --channels <int> --min <float> --max <float> [--config <file.pkl>] --value <float> 2>&1 | Select-Object -First 1).ToString().Trim()
 
 import argparse
 import sys
-from src.encoder import Encoder
-from src.decoder import Decoder
+from .encoder import Encoder
+from .decoder import Decoder
 
 def cmd_encode(a: argparse.Namespace) -> int:
     enc = Encoder(a.channels, a.max, a.min, configPath=a.config)
-    return(enc.encode(a.value))
+    print(enc.encode(a.value))
+    return 0
 
 def cmd_decode(a: argparse.Namespace) -> int:
     dec = Decoder(configPath=a.config)
-    return(dec.decode(a.hash))
+    print(dec.decode(a.hash))
+    return 0
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="hashcomb", description="HashComb CLI (minimal)")
