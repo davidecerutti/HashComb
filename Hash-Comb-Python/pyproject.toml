@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hashcomb"
+version = "0.1.1"
+description = "A quantization-based technique for privacy preserving distributed learning"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Davide Cerutti, Ernesto Damiani, Maurizio Colombo, Stelvio Cimato" }]
+dependencies = [
+  "numpy>=1.26",
+]
+
+[project.urls]
+Homepage = "https://github.com/mauricolombo/milanHashCombFL"
+
+[project.scripts]
+hashcomb = "hashcomb.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hashcomb*"]
+
+[tool.setuptools.package-data]
+hashcomb = ["py.typed"]
+
+# --- Qualità del codice ---
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E","F","B","I"]          # pyflakes/pycodestyle/bugbear/isort
+ignore = ["E203","E266","E501"]     # compat con black
+exclude = ["docs"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.mypy]
+python_version = "3.10"
+pretty = true
+strict = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = false
+no_implicit_optional = true
+exclude = ["tests/fixtures"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
