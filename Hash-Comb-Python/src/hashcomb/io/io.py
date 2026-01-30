@@ -1,13 +1,14 @@
-# src/hashcomb/io.py
+"""I/O helpers for HashComb configs and CSV pipelines."""
 from __future__ import annotations
-import os, csv, pickle
+import csv, pickle
 from pathlib import Path
 from typing import Any, List, Iterable
 
-from .exceptions import ConfigIOError, ConfigNotFoundError, InvalidConfigError, MissingColumnError, CSVFormatError
+from ..core.exceptions import ConfigIOError, ConfigNotFoundError, InvalidConfigError, MissingColumnError, CSVFormatError
 
 
 class PklIO:
+    """Persist encoder/decoder tables to disk using pickle."""
 
     @staticmethod
     def savePickle(path: str | Path, obj: Any) -> None:
@@ -32,6 +33,33 @@ class PklIO:
             raise ConfigIOError(str(path), op="read", cause=e) from e
 
     @staticmethod
+    def saveConfig(path: str | Path, config: dict) -> None:
+        """Save a HashComb configuration container to disk."""
+        if not isinstance(config, dict):
+            raise ConfigIOError(str(path), op="write", cause=TypeError("config must be a dict"))
+        PklIO.savePickle(path, config)
+
+    @staticmethod
+    def loadConfig(path: str | Path) -> dict:
+        """Load a configuration container (or legacy hashMap dict) from disk."""
+        obj = PklIO.loadPickle(path)
+        if isinstance(obj, dict):
+            if ("hashMap" in obj) or ("schema" in obj) or ("tree" in obj) or ("params" in obj):
+                if "params" not in obj:
+                    obj["params"] = {}
+                return obj
+            # Legacy format: plain hashMap dict
+            return {
+                "schema": "hashcomb.config.legacy",
+                "encoder": None,
+                "hashMap": obj,
+                "tree": None,
+                "params": {},
+                "salt": None,
+            }
+        raise InvalidConfigError(str(path), cause=TypeError("unsupported config format"))
+
+    @staticmethod
     def writeLine(path: str | Path, lines: Iterable[str], append: bool = True) -> None:
         try:
             p = Path(path)
@@ -45,6 +73,7 @@ class PklIO:
 
 
 class CsvIO:
+    """CSV utilities for encoding/decoding a value column."""
 
     @staticmethod
     def sniffDialect(path: str) -> csv.Dialect:

@@ -1,14 +1,16 @@
 from __future__ import annotations
+"""Binary quantization tree used by HashComb encoders."""
 from decimal import ROUND_HALF_UP, Decimal
 import logging
-from typing import Optional, List, Any, Union
+from typing import Optional
 
 from .node import Node
-from .exceptions import OutOfRangeError
+from .exceptions import OutOfRangeError, InvalidParameterError
 
 logger = logging.getLogger(__name__)
 
 class Tree:
+    """Balanced binary tree partitioning the value range into 2^channels bins."""
     channels : int
     min : float
     max : float
@@ -36,13 +38,15 @@ class Tree:
 
     @staticmethod
     def round(value: float, places: int) -> float:
+        """Round a float to a fixed number of decimal places (half-up)."""
         if places < 0:
-            raise ValueError("tree.py/round : places must be >= 0")
+            raise InvalidParameterError.param("places", places, "places must be >= 0")
         q = Decimal("1").scaleb(-places)
         d = Decimal(str(value)).quantize(q, rounding=ROUND_HALF_UP)
         return float(d)
     
     def insert(self, node: Node) -> None:
+        """Recursively build a full binary tree up to target depth (channels)."""
         currentChannel = node.channel
         if currentChannel != self.channels :
             center = node.getCenter
@@ -68,8 +72,9 @@ class Tree:
             count = count + a + b
         return count
     
-    def getHValues(self, num: float, isHashed: bool) -> list[str]:
+    def getHValues(self, num: float, isHashed: bool, salt: str | None = None) -> list[str]:
+        """Return the hash/token path from root to leaf for a value."""
         if (num < self.min) or (num > self.max):
             raise OutOfRangeError(num, self.min, self.max)
-        out = self.root.getValue(num, isHashed)
+        out = self.root.getValue(num, isHashed, salt)
         return out or []

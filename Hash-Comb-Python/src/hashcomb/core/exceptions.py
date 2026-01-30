@@ -1,4 +1,4 @@
-# src/hashcomb/exceptions.py
+"""Exception hierarchy for HashComb."""
 from __future__ import annotations
 from typing import Any, Dict, Optional
 
@@ -52,15 +52,19 @@ class InvalidParameterError(HashCombError):
     code = "invalid_parameter"
 
     @classmethod
-    def channels(cls, channels: Any, *, min_: int = 1, max_: int = 30) -> "InvalidParameterError":
+    def channels(cls, channels: Any, *, min_: int = 1, max_: int = 30) -> InvalidParameterError:
         return cls(
             "channels must be within the allowed range",
             ctx={"param": "channels", "value": channels, "min": min_, "max": max_},
         )
 
     @classmethod
-    def value_range(cls, vmin: Any, vmax: Any) -> "InvalidParameterError":
+    def value_range(cls, vmin: Any, vmax: Any) -> InvalidParameterError:
         return cls("max must be greater than min", ctx={"min": vmin, "max": vmax})
+
+    @classmethod
+    def param(cls, name: str, value: Any, message: str) -> InvalidParameterError:
+        return cls(message, ctx={"param": name, "value": value})
 
 
 class OutOfRangeError(HashCombError):

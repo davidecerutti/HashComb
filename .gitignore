@@ -31,3 +31,9 @@ maven-archiver/
 .vscode/
 .idea/
 *.iml
+
+# Ignora file specifici 
+Hash-Comb-Python/1-s2.0-S0167739X25000366-main (2).pdf
+Hash-Comb-Python/1-s2.0-S0167739X25000366-main (2).txt
+
+Hash-Comb-Python/dafare

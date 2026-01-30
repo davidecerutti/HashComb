@@ -14,6 +14,14 @@ dependencies = [
   "numpy>=1.26",
 ]
 
+[project.optional-dependencies]
+notebooks = [
+  "matplotlib>=3.8",
+  "pandas>=2.1",
+  "scikit-learn>=1.3",
+  "scipy>=1.10",
+]
+
 [project.urls]
 Homepage = "https://github.com/mauricolombo/milanHashCombFL"
 

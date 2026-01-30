@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Testing / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Notebooks artifacts / generated files
+notebooks/artifacts/
+notebooks/**/*.pkl
+notebooks/**/*.pkl~
+notebooks/**/*.csv
+notebooks/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db
