@@ -7,6 +7,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+try:
+    from IPython.display import display
+except Exception:  # pragma: no cover - fallback when IPython is unavailable
+    def display(obj) -> None:  # type: ignore[no-redef]
+        print(obj)
+
 from hashcomb.core.node import Node
 from hashcomb.core.hash import Hash
 from hashcomb.io.io import PklIO
@@ -180,6 +186,7 @@ def plot_hash_distribution(
     decoder,
     mean_plain: float,
     mean_hash_server: float,
+    title: str | None = None,
 ) -> None:
     """Plot plaintext distribution vs hashed bin frequencies."""
     all_values = np.concatenate([np.asarray(v) for v in client_values])
@@ -221,7 +228,9 @@ def plot_hash_distribution(
 
     plt.xlabel("value")
     plt.ylabel("Density / norm. frequency")
-    plt.title("Original distribution vs quantized (HashComb)")
+    if title is None:
+        title = "Original distribution vs quantized (HashComb)"
+    plt.title(title)
     plt.legend()
     plt.grid(True, alpha=0.2)
     plt.show()

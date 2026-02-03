@@ -11,6 +11,7 @@ from ..core.round_context import RoundContext
 from ..io.io import PklIO
 from ..core.hash import Hash
 from ..core.exceptions import InvalidParameterError, PathLengthMismatch, InvalidConfigError
+from ..core.validation import validate_channels, validate_range, validate_delta
 
 
 logger = logging.getLogger(__name__)
@@ -34,16 +35,9 @@ class Encoder:
         salt: str | None = None,
         roundContext: RoundContext | None = None,
     ) -> None :
-        if maxValue <= minValue:
-            raise InvalidParameterError.value_range(minValue, maxValue)
-        if not (1 <= channels):
-            raise InvalidParameterError.channels(channels, min_=1)
-        if delta is not None and delta < 0:
-            raise InvalidParameterError(
-                "delta must be >= 0",
-                ctx={"param": "delta", "value": delta},
-            )
-        self.channels = int(channels)
+        validate_range(minValue, maxValue)
+        self.channels = validate_channels(channels, min_=1)
+        validate_delta(delta)
         if delta is not None:
             self.min = float(minValue) - float(delta)
             self.max = float(maxValue) + float(delta)

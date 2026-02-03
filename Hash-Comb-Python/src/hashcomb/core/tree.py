@@ -6,6 +6,7 @@ from typing import Optional
 
 from .node import Node
 from .exceptions import OutOfRangeError, InvalidParameterError
+from .validation import validate_channels, validate_finite, validate_value_in_range
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class Tree:
 
 
     def __init__(self, channels: int, maxValue: float, minValue: float, rounds: Optional[int] = None) -> None:
-        self.channels = int(channels)
+        self.channels = validate_channels(channels, min_=1)
         self.isRounded = False
         self.places = 3
 
@@ -41,6 +42,7 @@ class Tree:
         """Round a float to a fixed number of decimal places (half-up)."""
         if places < 0:
             raise InvalidParameterError.param("places", places, "places must be >= 0")
+        validate_finite("value", value)
         q = Decimal("1").scaleb(-places)
         d = Decimal(str(value)).quantize(q, rounding=ROUND_HALF_UP)
         return float(d)
@@ -74,7 +76,6 @@ class Tree:
     
     def getHValues(self, num: float, isHashed: bool, salt: str | None = None) -> list[str]:
         """Return the hash/token path from root to leaf for a value."""
-        if (num < self.min) or (num > self.max):
-            raise OutOfRangeError(num, self.min, self.max)
+        validate_value_in_range(num, self.min, self.max)
         out = self.root.getValue(num, isHashed, salt)
         return out or []

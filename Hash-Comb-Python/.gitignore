@@ -29,3 +29,6 @@ notebooks/__pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Private work
+_project/

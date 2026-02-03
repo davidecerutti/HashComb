@@ -12,6 +12,7 @@ from ..core.hash import Hash
 from ..io.io import PklIO
 from ..core.round_context import RoundContext
 from ..core.exceptions import InvalidParameterError, PathLengthMismatch, InvalidConfigError
+from ..core.validation import validate_channels, validate_range, validate_delta, validate_probability
 
 logger = logging.getLogger(__name__)
 
@@ -38,22 +39,12 @@ class RandomizedEncoder:
         salt: str | None = None,
         roundContext: RoundContext | None = None,
     ) -> None:
-        if maxValue <= minValue:
-            raise InvalidParameterError.value_range(minValue, maxValue)
-        if not (1 <= channels):
-            raise InvalidParameterError.channels(channels, min_=1)
-        if delta is not None and delta < 0:
-            raise InvalidParameterError(
-                "delta must be >= 0",
-                ctx={"param": "delta", "value": delta},
-            )
-        if not (0.0 < selectionProbability <= 1.0):
-            raise InvalidParameterError(
-                "selectionProbability must be within (0, 1]",
-                ctx={"param": "selectionProbability", "value": selectionProbability},
-            )
+        validate_range(minValue, maxValue)
+        self.channels = validate_channels(channels, min_=1)
+        validate_delta(delta)
+        validate_probability("selectionProbability", selectionProbability)
 
-        self.channels = int(channels)
+        self.channels = int(self.channels)
         if delta is not None:
             self.min = float(minValue) - float(delta)
             self.max = float(maxValue) + float(delta)
@@ -146,13 +137,8 @@ class RandomizedEncoder:
         """
         L = int(channels)
         p = float(selectionProbability)
-        if L < 1:
-            raise InvalidParameterError.channels(L, min_=1)
-        if not (0.0 < p <= 1.0):
-            raise InvalidParameterError(
-                "selectionProbability must be within (0, 1]",
-                ctx={"param": "selectionProbability", "value": selectionProbability},
-            )
+        validate_channels(L, min_=1)
+        validate_probability("selectionProbability", p)
         q = 1.0 - p
         total = 0.0
         for i in range(0, L):
@@ -172,8 +158,7 @@ class RandomizedEncoder:
         sum_{i=0}^{L-1} (L - i) * p * (1 - p)^i = targetLevel
         """
         L = int(channels)
-        if L < 1:
-            raise InvalidParameterError.channels(L, min_=1)
+        validate_channels(L, min_=1)
         if not (0.0 < float(targetLevel) <= float(L)):
             raise InvalidParameterError(
                 "targetLevel must be within (0, L]",
