@@ -9,7 +9,7 @@ description = "A quantization-based technique for privacy preserving distributed
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Davide Cerutti, Ernesto Damiani, Maurizio Colombo, Stelvio Cimato" }]
+authors = [{ name = "Davide Cerutti, Ernesto Damiani, Stelvio Cimato" }]
 dependencies = [
   "numpy>=1.26",
 ]
@@ -23,7 +23,7 @@ notebooks = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mauricolombo/milanHashCombFL"
+Homepage = "https://github.com/davidecerutti/HashCombPython"
 
 [project.scripts]
 hashcomb = "hashcomb.cli:main"
@@ -38,7 +38,7 @@ include = ["hashcomb*"]
 [tool.setuptools.package-data]
 hashcomb = ["py.typed"]
 
-# --- Qualità del codice ---
+# --- code quality ---
 [tool.ruff]
 line-length = 100
 target-version = "py310"
