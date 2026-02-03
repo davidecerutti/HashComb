@@ -23,7 +23,7 @@ notebooks = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/davidecerutti/HashCombPython"
+Homepage = "https://github.com/davidecerutti/HashCombPython/tree/main/Hash-Comb-Python"
 
 [project.scripts]
 hashcomb = "hashcomb.cli:main"
