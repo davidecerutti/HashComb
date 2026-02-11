@@ -1,5 +1,10 @@
 # HashComb Python
 
+[![PyPI](https://img.shields.io/pypi/v/hashcomb.svg)](https://pypi.org/project/hashcomb/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/hashcomb.svg)](https://pypi.org/project/hashcomb/)
+[![License](https://img.shields.io/pypi/l/hashcomb.svg)](https://pypi.org/project/hashcomb/)
+[![Homepage](https://img.shields.io/badge/homepage-github-blue)](https://github.com/davidecerutti/HashCombPython/tree/main/Hash-Comb-Python)
+
 HashComb is a quantization-based hashing technique for privacy‑preserving distributed learning. It builds a balanced binary tree over a numeric range and maps values to hash tokens derived from tree nodes. Tokens can be used as compact, privacy‑preserving representations for aggregation, statistics, and clustering, as described in the HashComb paper.
 
 > **Reference**: This implementation follows the HashComb paper (see the PDF in the repository root).
@@ -19,6 +24,20 @@ HashComb is a quantization-based hashing technique for privacy‑preserving dist
 ---
 
 ## Installation
+
+From PyPI:
+
+```bash
+pip install hashcomb
+```
+
+Optional dependencies for notebooks:
+
+```bash
+pip install "hashcomb[notebooks]"
+```
+
+From source:
 
 ```bash
 pip install -e .

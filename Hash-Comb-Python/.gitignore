@@ -26,6 +26,9 @@ notebooks/**/*.pkl~
 notebooks/**/*.csv
 notebooks/__pycache__/
 
+# distribution / packaging
+dist/
+
 # OS
 .DS_Store
 Thumbs.db
