@@ -6,5 +6,5 @@ As a user intrested in *HashComb*, please navigate the Hash-Comb-Python folder. 
 As a intrested reader of the related paper, to take a look of the proof of concept, please navigate the Hash-Comb-Java-deprecated folder.
 
 If you are intresten on the topic, you can find paper at: <br>
-chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://arxiv.org/pdf/2406.19418 <br>
+https://arxiv.org/pdf/2406.19418 <br>
 https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9733341
