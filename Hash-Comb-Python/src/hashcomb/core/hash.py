@@ -37,3 +37,23 @@ class Hash:
         if salt is not None:
             s = f"{s}|{salt}"
         return str(Hash.sha3_256_int64(s) & 0x0FFFFFFF)
+
+# -----------------------------------------------------------------------
+# Minimum hash bits to avoid collisions (birthday-bound estimate)
+# depending on the number of tree channels (= tree height).
+#
+#   Channels | Leaves | Total nodes | Min bits (P<0.1%) | Min bits (P<10⁻⁹)
+#   ---------|--------|-------------|--------------------|-----------------
+#       4    |     16 |          31 |         10         |        19
+#       6    |     64 |         127 |         14         |        23
+#       8    |    256 |         511 |         18         |        27
+#      10    |  1 024 |       2 047 |         22         |        31
+#      12    |  4 096 |       8 191 |         26         |        35
+#      14    | 16 384 |      32 767 |         30         |        39
+#      16    | 65 536 |     131 071 |         34         |        43
+#
+# Rule of thumb:  B >= 2*log2(N) + k,  where N = total nodes,
+#                 k ≈ 10 for P < 1e-3,  k ≈ 30 for P < 1e-9.
+#
+# Current default (28 bits) is safe for trees up to ~10 channels.
+# -----------------------------------------------------------------------
