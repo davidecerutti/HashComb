@@ -3,9 +3,9 @@ name: Mirror Repository to Local GitLab
 on:
   push:
     branches:
-      - '*'
+      - 'master'
     tags:
-      - '*'
+      - 'latest'
 
 jobs:
   mirror:
